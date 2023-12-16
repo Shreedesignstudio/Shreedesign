@@ -1,0 +1,67 @@
+import React, { useState } from 'react';
+import { useParams, Link, Navigate } from 'react-router-dom';
+import servicesData from './ServicesData';
+import Lightbox from 'react-image-lightbox';
+import 'react-image-lightbox/style.css';
+
+const ServiceGallery = () => {
+  const { id } = useParams();
+  const service = servicesData.find((s) => s.id.toString() === id);
+  const additionalImages = service?.additionalImages || [];
+
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+
+  if (!service) {
+    return <Navigate to="/not-found" />;
+  }
+
+  const handleImageClick = (index) => {
+    setSelectedImageIndex(index);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedImageIndex(0);
+    setShowModal(false);
+  };
+
+  return (
+    <div className="container py-5">
+      <h1 className="text-center mb-4">{service.name} Gallery</h1>
+      <div className="row">
+        {additionalImages.map((image, index) => (
+          <div key={index} className="col-sm-6 col-md-4 col-lg-4 col-xl-4 mb-4">
+          
+            <img
+              src={image}
+              alt={`${service.name} Design`}
+              className="img-fluid"
+              onClick={() => handleImageClick(index)}
+            />
+          </div>
+        ))}
+      </div>
+
+ 
+      {showModal && (
+        <Lightbox
+          mainSrc={additionalImages[selectedImageIndex]}
+          nextSrc={additionalImages[(selectedImageIndex + 1) % additionalImages.length]}
+          prevSrc={
+            additionalImages[(selectedImageIndex + additionalImages.length - 1) % additionalImages.length]
+          }
+          onCloseRequest={handleCloseModal}
+          onMovePrevRequest={() =>
+            setSelectedImageIndex((selectedImageIndex + additionalImages.length - 1) % additionalImages.length)
+          }
+          onMoveNextRequest={() =>
+            setSelectedImageIndex((selectedImageIndex + 1) % additionalImages.length)
+          }
+        />
+      )}
+    </div>
+  );
+};
+
+export default ServiceGallery;
